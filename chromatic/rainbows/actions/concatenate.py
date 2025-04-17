@@ -42,23 +42,47 @@ def concatenate_in_time(self, other, maximum_fractional_difference=0.01):
 
     # loop through wavelengths
     for k in self.wavelike:
-        f = fractional_difference(self.wavelike[k], other.wavelike[k])
-        if np.any(f > maximum_fractional_difference):
+        try:
+            f = fractional_difference(self.wavelike[k], other.wavelike[k])
+            if np.any(f > maximum_fractional_difference):
+                cheerfully_suggest(
+                    f"""
+                wavelike['{k}'] differs fractionally by a maximum of {np.max(f):.3g}
+                between `self` and `other` ({np.sum(f > maximum_fractional_difference)} differences greater than {maximum_fractional_difference:.3g}).
+                `self` values will be used; `other` values will be ignored.
+                """
+                )
+        except KeyError:
             cheerfully_suggest(
                 f"""
-            wavelike['{k}'] differs fractionally by a maximum of {np.max(f):.3g}
-            between `self` and `other` ({np.sum(f > maximum_fractional_difference)} differences greater than {maximum_fractional_difference:.3g}).
-            `self` values will be used; `other` values will be ignored.
-            """
+                wavelike['{k}'] exists in `self` but not in `other`.
+                `self` values will be used; no values from `other` will be included.
+                """
             )
 
     # loop through timelike quantities
     for k in self.timelike:
-        new.timelike[k] = np.hstack([self.timelike[k], other.timelike[k]])
+        try:
+            new.timelike[k] = np.hstack([self.timelike[k], other.timelike[k]])
+        except KeyError:
+            cheerfully_suggest(
+                f"""
+                timelike['{k}'] exists in `self` but not in `other`.
+                Only `self` values will be included in the result.
+                """
+            )
 
     # loop through fluxlike quantities
     for k in self.fluxlike:
-        new.fluxlike[k] = np.hstack([self.fluxlike[k], other.fluxlike[k]])
+        try:
+            new.fluxlike[k] = np.hstack([self.fluxlike[k], other.fluxlike[k]])
+        except KeyError:
+            cheerfully_suggest(
+                f"""
+                fluxlike['{k}'] exists in `self` but not in `other`.
+                Only `self` values will be included in the result.
+                """
+            )
 
     # append the history entry to the new Rainbow
     new._record_history_entry(h)
@@ -94,23 +118,47 @@ def concatenate_in_wavelength(self, other, maximum_fractional_difference=0.01):
 
     # loop through times
     for k in self.timelike:
-        f = fractional_difference(self.timelike[k], other.timelike[k])
-        if np.any(f > maximum_fractional_difference):
+        try:
+            f = fractional_difference(self.timelike[k], other.timelike[k])
+            if np.any(f > maximum_fractional_difference):
+                cheerfully_suggest(
+                    f"""
+                timelike['{k}'] differs fractionally by a maximum of {np.max(f):.3g}
+                between `self` and `other` ({np.sum(f > maximum_fractional_difference)} differences greater than {maximum_fractional_difference:.3g}).
+                `self` values will be used; `other` values will be ignored.
+                """
+                )
+        except KeyError:
             cheerfully_suggest(
                 f"""
-            timelike['{k}'] differs fractionally by a maximum of {np.max(f):.3g}
-            between `self` and `other` ({np.sum(f > maximum_fractional_difference)} differences greater than {maximum_fractional_difference:.3g}).
-            `self` values will be used; `other` values will be ignored.
-            """
+                timelike['{k}'] exists in `self` but not in `other`.
+                `self` values will be used; no values from `other` will be included.
+                """
             )
 
     # loop through wavelike quantities
     for k in self.wavelike:
-        new.wavelike[k] = np.hstack([self.wavelike[k], other.wavelike[k]])
+        try:
+            new.wavelike[k] = np.hstack([self.wavelike[k], other.wavelike[k]])
+        except KeyError:
+            cheerfully_suggest(
+                f"""
+                wavelike['{k}'] exists in `self` but not in `other`.
+                Only `self` values will be included in the result.
+                """
+            )
 
     # loop through fluxlike quantities
     for k in self.fluxlike:
-        new.fluxlike[k] = np.hstack([self.fluxlike[k], other.fluxlike[k]])
+        try:
+            new.fluxlike[k] = np.hstack([self.fluxlike[k], other.fluxlike[k]])
+        except KeyError:
+            cheerfully_suggest(
+                f"""
+                fluxlike['{k}'] exists in `self` but not in `other`.
+                Only `self` values will be included in the result.
+                """
+            )
 
     # append the history entry to the new Rainbow
     new._record_history_entry(h)
